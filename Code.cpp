@@ -577,3 +577,86 @@ class Solution {
         return (int)distinceIsland.size();
     }
 };
+
+
+/*Checking weather the given graph is bipartite 
+  Graph is bipartite only when these is a cycle of odd length
+  but we are not gonna go that way,  we simply gonna color the node and if we found a already colored node 
+  we check weather the given is colored oppositively or not
+  if not then the grpah is not bipartite
+  
+  Time and space complexity same as that of a bfs algoritham
+*/
+class Solution {
+private:
+    bool bfs(int node , vector<int>& color , vector<vector<int>>& graph) {
+        queue<int> q;
+        q.push(node);
+        color[node] = 0;
+        while(!q.empty()) {
+            int currNode = q.front();
+            q.pop();
+
+            for(auto &it: graph[currNode]) {
+                if(color[it] == -1) {
+                    color[it] = 1 - color[currNode];
+                    q.push(it);
+                }
+                else if(color[it] == color[currNode]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+public:
+    bool isBipartite(vector<vector<int>>& graph) {
+        int v = graph.size();
+        
+        vector<int> color(v , -1);
+       
+        
+        for(int i = 0; i < v; i++) {
+            if(color[i] == -1) {
+               if(!bfs(i , color , graph))
+                return false;
+            }
+        }
+       
+        return true;
+    }
+};
+
+/*Checking Bipartiteness of graph using dfs*/
+
+class Solution {
+private:
+    void dfs(int node , int parentNode,vector<int> &color , vector<vector<int>>& graph , bool& ans ,int currColor) {
+        color[node] = currColor;
+
+        for(auto &it: graph[node]) {
+            if(it == parentNode) continue;
+            if(color[it] == -1) {
+                dfs(it , node, color , graph,  ans, 1 - currColor);
+            }
+            else if(color[it] == color[node]) {
+                ans = false;
+                return;
+            }
+        }
+    }
+public:
+    bool isBipartite(vector<vector<int>>& graph) {
+        int v = graph.size();
+        bool ans = true;
+        vector<int> color(v , -1);
+        int currColor = 0;
+        for(int i = 0; i < v; i++) {
+            if(color[i] == -1) {
+               dfs(i ,-1, color , graph , ans , currColor);
+            }
+        }
+       
+        return ans;
+    }
+};
