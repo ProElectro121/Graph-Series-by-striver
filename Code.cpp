@@ -367,3 +367,213 @@ public:
     }
 };
 
+/*0/1 matrix -- > basically we have to find the distance of nearest cell containing elemnt 0
+ So basically if the element at index is 0 , then the distance is also 0
+ and for other cells we think in such a way that we start from 0 and find the cloaset cell ie 1
+ 
+ Time complexity ---> O(m*n) + 4*O(m*n)
+ space complexity ---> O(m*n) --> vis matrix + O(m*n) --> answer matrix  + O(m*n) --> for queue approx ~ O(m*n) 
+*/
+
+class Solution {
+public:
+    vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
+        int m = mat.size();
+        int n = mat[0].size();
+
+        vector<vector<int>> vis(m , vector<int>(n , 0));
+        vector<vector<int>> finalmat(m , vector<int>(n , 0));
+        queue<pair<int, pair<int,int>>> q;
+
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(mat[i][j] == 1) continue;
+
+                vis[i][j] = 1;
+                q.push({0 , {i , j}});
+            }
+        }
+        int dx[] = {0, 1, 0 , -1};
+        int dy[] = {1 , 0, -1, 0};
+
+        while(!q.empty()) {
+            auto temp = q.front();
+            q.pop();
+            int level = temp.first;
+            int x = temp.second.first;
+            int y = temp.second.second;
+            
+            finalmat[x][y] = level;
+
+            for(int i = 0; i < 4; i++) {
+                int newx = x + dx[i];
+                int newy = y + dy[i];
+
+                if(newx >= 0 and newy >= 0 and newx < m and newy < n and vis[newx][newy] == 0 and mat[newx][newy] == 1) {
+                    q.push({level + 1 , {newx , newy}});
+                    vis[newx][newy] = 1;
+                }
+            }
+        }
+        return finalmat;
+    }
+}
+
+/*Sorrounded region --> basically we have to find the 
+Given an m x n matrix board containing 'X' and 'O', capture all regions that are 4-directionally surrounded by 'X'.
+
+A region is captured by flipping all 'O's into 'X's in that surrounded region.
+  so we can simply see that the 'O' which are in the edges and all the 'O' which are connected to it still going to remain same
+  else all other will became X.
+*/
+
+class Solution {
+public:
+    void solve(vector<vector<char>>& board) {
+        int m = board.size();
+        int n = board[0].size();
+
+        vector<vector<int>> vis(m , vector<int>(n , 0));
+
+        queue<pair<int,int>> q;
+
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if((i == 0 or i == m - 1 or j == 0 or j == n - 1) and board[i][j] == 'O') {
+                    vis[i][j] = 1;
+                    q.push({i , j});
+                }
+            }
+        }
+        int dx[] = {0 , 1,  0, -1};
+        int dy[] = {1 , 0, -1, 0};
+        while(!q.empty()) {
+            auto temp = q.front();
+            q.pop();
+
+            int x = temp.first;
+            int y = temp.second;
+
+            for(int i = 0;i < 4; i++) {
+                int newx = x + dx[i];
+                int newy = y + dy[i];
+
+                if(newx >= 0 and newy >= 0 and newx < m and newy < n and board[newx][newy] == 'O' and vis[newx][newy] == 0) {
+                    vis[newx][newy] = 1;
+                    q.push({newx , newy});
+                }
+            }
+        }
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(vis[i][j] == 1)
+                  board[i][j] = 'O';
+                  else
+                  board[i][j] = 'X';
+            }
+        }
+    }
+};
+
+/*Number of enclaves --> basically we have to find the number of islands from which we can come form the grid --> exacly same as sorrounded region*/
+
+class Solution {
+public:
+    int numEnclaves(vector<vector<int>>& board) {
+          int m = board.size();
+        int n = board[0].size();
+
+        vector<vector<int>> vis(m , vector<int>(n , 0));
+
+        queue<pair<int,int>> q;
+
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if((i == 0 or i == m - 1 or j == 0 or j == n - 1) and board[i][j] == 1) {
+                    vis[i][j] = 1;
+                    q.push({i , j});
+                }
+            }
+        }
+        int dx[] = {0 , 1,  0, -1};
+        int dy[] = {1 , 0, -1, 0};
+        while(!q.empty()) {
+            auto temp = q.front();
+            q.pop();
+
+            int x = temp.first;
+            int y = temp.second;
+
+            for(int i = 0;i < 4; i++) {
+                int newx = x + dx[i];
+                int newy = y + dy[i];
+
+                if(newx >= 0 and newy >= 0 and newx < m and newy < n and board[newx][newy] == 1 and vis[newx][newy] == 0) {
+                    vis[newx][newy] = 1;
+                    q.push({newx , newy});
+                }
+            }
+        }
+        int ans = 0;
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(board[i][j] == 1 and vis[i][j] == 0) ans++;
+            }
+        }
+        return ans;
+    }
+};
+
+/*
+ Number of distince island --> So we main basic idea is to somehow retain the shape of island , we can do this we the help of set data structure
+*/
+
+class Solution {
+  public:
+    int countDistinctIslands(vector<vector<int>>& grid) {
+        map<set<pair<int,int>> , int> distinceIsland;
+        
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        vector<vector<int>> vis(m , vector<int> (n , 0));
+        
+        bool ok = false;
+        int dx[] = {0 , 1, 0, -1};
+        int dy[] = {1 , 0, -1, 0};
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(grid[i][j] == 1 and vis[i][j] == 0) {
+                   queue<pair<int,int>> q;
+                   
+                   vis[i][j] = 1;
+                   q.push({i , j});
+                   vector<pair<int,int>> p;
+                   while(!q.empty()) {
+                       auto temp = q.front();
+                       int x = temp.first;
+                       int y = temp.second;
+                       q.pop();
+                       p.push_back({x , y});
+                       for(int i = 0; i < 4; i++) {
+                           int newx = x + dx[i];
+                           int newy = y + dy[i];
+                           
+                           if(newx >= 0 and newy >= 0 and newx < m and newy < n and vis[newx][newy] == 0 and grid[newx][newy] == 1) {
+                               q.push({newx , newy});
+                               vis[newx][newy] = 1;
+                           }
+                       }
+                   }
+                   sort(p.begin() , p.end());
+                   set<pair<int,int>> temps;
+                   for(int j = 1; j < p.size(); j++) {
+                       temps.insert({ p[j].first - p[0].first ,p[j].second - p[0].second});
+                   }
+                   distinceIsland[temps]++;
+                }
+            }
+        }
+        return (int)distinceIsland.size();
+    }
+};
