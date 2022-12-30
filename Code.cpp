@@ -660,3 +660,40 @@ public:
         return ans;
     }
 };
+
+/*Checking weather a directed graph contain cycle or not
+ Time complexity ---> O(V + E)
+ 
+ We can simplify the expression by using a single visited array ie marking 2 if both visited and pathvited and marking 1 in the backtracking preocess.
+*/
+
+class Solution {
+  private:
+    bool dfs(int node , int vis[] , int pathVis[] , vector<int> adj[]) {
+        vis[node] = 1;
+        pathVis[node] = 1;
+        
+        for(auto &it: adj[node]) {
+            if(!vis[it]) {
+                if(dfs(it , vis , pathVis , adj)) return true;
+            }
+            else if(vis[it] and pathVis[it]) return true;
+            
+        }
+        pathVis[node] = 0;
+        return false;
+    }
+  public:
+    // Function to detect cycle in a directed graph.
+    bool isCyclic(int V, vector<int> adj[]) {
+        int vis[V] = {0};
+        int pathVis[V] = {0};
+        
+        for(int i = 0; i < V; i++) {
+            if(!vis[i]) {
+                if(dfs(i , vis , pathVis , adj)) return 1;;
+            }
+        }
+        return 0;
+    }
+};
