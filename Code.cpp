@@ -697,3 +697,141 @@ class Solution {
         return 0;
     }
 };
+
+/*Find eventual safe states --> So we have to find the all the nodes from which any path ends to an terminal node 
+Idea ---> so basically all the nodes which are part of a cycle or leads to a cycle can never be a safe nodes
+
+we can also use pathVis array to to get the safe nodes just check weather the pathvis array is zero or not if zero --> safeNode elsse not a safe node.
+*/
+
+class Solution {
+private:
+    bool dfs(int node , vector<int>& vis , vector<int>& pathVis , vector<int>& check ,vector<vector<int>>& graph) {
+        vis[node] = 1;
+        pathVis[node] = 1;
+        //initially check[node] is 0.
+        for(auto &it: graph[node]) {
+            if(!vis[it]) {
+                if(dfs(it , vis , pathVis , check , graph) == true){
+                    check[node] = 0;
+                  return true;
+                }    
+            }
+            else if(pathVis[it] == true) {
+              check[node] = 0;
+              return true;
+            }    
+        }
+        // marking the node as 1 ie it is a safe node
+        check[node] = 1;
+        pathVis[node] = 0;
+        return false;
+    }
+public:
+    vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
+        int V = graph.size();
+        vector<int> vis(V , 0);
+        vector<int> pathVis(V , 0);
+        vector<int> check(V , 0);
+
+        for(int i = 0; i < V; i++) {
+            if(!vis[i]) {
+                dfs(i , vis , pathVis , check , graph);
+            }
+        }
+        vector<int> safeNodes;
+        for(int i = 0; i < V; i++) {
+            if(check[i] == 1) {
+                safeNodes.push_back(i);
+            }
+        }
+        return safeNodes;
+    }
+};
+/*
+Topologiclal sort --> means if there is a edge between u and v then u should appear before v in the linear ordering
+this can done using stack
+
+intution  --> untill and untill the dfs call of a node gets completed, then we push the node in the stack =..
+
+Ex -->   1 --> 2 --> 3 --> 4
+
+then we should put 4 in the stack assuming all the element after 4 are already in the linear order 
+then we do same for the remaining node.
+*/
+class Solution {
+    private:
+    void dfs(int node , int vis[] , vector<int> adj[] ,stack<int>& st) {
+         vis[node] = 1;
+         
+         for(auto &it: adj[node]) {
+             if(!vis[it])
+               dfs(it , vis , adj , st);
+             
+         }
+        st.push(node); 
+    }
+	public:
+	//Function to return list containing vertices in Topological order. 
+	vector<int> topoSort(int V, vector<int> adj[]) {
+	   stack<int> st;
+	   int vis[V] = {0};
+	   
+	   for(int i = 0; i < V; i++) {
+	       if(!vis[i]) {
+	           dfs(i , vis , adj , st);
+	       }
+	   }
+	   vector<int> linearOrder;
+	   while(!st.empty()) {
+	       linearOrder.push_back(st.top());
+	       st.pop();
+	   }
+	   return linearOrder;
+	}
+};
+
+/*Topological sort using BFS algoritham -----> KAHN ALGORITHAM
+ first we create a check array that will count the number of incoming edges to index(node)
+ Then we are gonna put all the node with 0 edges coming to it in the queue
+ 
+ then we will pop then node and disconnect the node it make every edge connected to it to 0 this can be done
+ by decreasing the value at the nodes
+ if now the number of nodes become 0 we are again push the node in the queue
+ check array or indegree array
+ 
+ Time complexity --> for a DAC --> O(V + E).
+*/
+
+class Solution
+{
+	public:
+	//Function to return list containing vertices in Topological order. 
+	vector<int> topoSort(int V, vector<int> adj[]) {
+	    int check[V] = {0};
+	    vector<int> linearOrder;
+	    for(int i = 0; i < V; i++) {
+	        for(auto &it: adj[i]) {
+	            check[it]++;
+	        }
+	    }
+	    queue<int> q;
+	    
+	    for(int i = 0; i <V; i++) {
+	        if(check[i] == 0) {
+	            q.push(i);  
+	        }
+	    }
+	    while(!q.empty()) {
+	        auto it = q.front();
+	        linearOrder.push_back(it);
+	        q.pop();
+	        for(auto &i: adj[it]) {
+	            check[i]--;
+	            if(check[i] == 0) 
+	              q.push(i);
+	        }
+	    }
+	    return linearOrder;
+	}
+};
