@@ -1002,3 +1002,52 @@ class Solution{
         return ans;
     }
 };
+
+
+class Solution {
+  private:
+     void dfs(int node , int vis[] , vector<vector<pair<int,int>>>& graph, stack<int>& st) {
+         vis[node] = 1;
+         
+         for(auto &it: graph[node]) {
+             if(!vis[it.first]) {
+                 dfs(it.first , vis , graph , st);
+             }
+         }
+         st.push(node);
+     }
+  public:
+     vector<int> shortestPath(int N,int M, vector<vector<int>>& edges){
+        vector<vector<pair<int,int>>> graph(N);
+        int src = 0;
+        for(int i = 0; i < M; i++) {
+           graph[edges[i][0]].push_back({edges[i][1] , edges[i][2]});
+        }
+        stack<int> st;
+        int vis[N] = {0};
+        for(int  i = 0; i < N; i++) {
+            if(!vis[i]) {
+                dfs(i , vis , graph , st);
+            }
+        }
+        
+        vector<int> dist(N , 1e9);
+        
+        dist[src] = 0;
+        
+        while(!st.empty()) {
+            auto it = st.top();
+            st.pop();
+            
+            for(auto &i: graph[it]) {
+                int node = i.first;
+                int wt = i.second;
+                dist[node] = min(dist[node] , wt + dist[it]);
+            }
+        }
+        for(auto &i: dist) {
+            i = (i == 1e9 ? -1 : i);
+        }
+        return dist;
+    }
+};
