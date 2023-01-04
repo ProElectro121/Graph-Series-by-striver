@@ -835,3 +835,170 @@ class Solution
 	    return linearOrder;
 	}
 };
+
+/*
+There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1.
+You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+Return true if you can finish all courses. Otherwise, return false.
+*/
+
+class Solution {
+public:
+    bool canFinish(int num, vector<vector<int>>& p) {
+        vector<int> adj[num];
+
+        for(int i = 0; i < p.size(); i++) {
+             adj[p[i][0]].push_back(p[i][1]);
+        }
+
+        int indegree[num];
+        for(int i = 0; i < num; i++) indegree[i] = 0;
+        for(int i = 0; i < num;i++) {
+            for(auto &j: adj[i]) {
+                indegree[j]++;
+            }
+        }
+        queue<int> q;
+        for(int i = 0; i < num; i++) {
+            if(indegree[i] == 0) {
+                q.push(i);
+            }
+        }
+
+        while(!q.empty()) {
+            int node = q.front();
+            q.pop();
+
+            for(auto &i: adj[node]) {
+                indegree[i]--;
+                if(indegree[i] == 0) {
+                    q.push(i);
+                }
+            }
+
+        }
+        for(int i = 0; i < num; i++) {
+            if(indegree[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+/*
+There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. 
+You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+Return the ordering of courses you should take to finish all courses. 
+If there are many valid answers, return any of them. If it is impossible to finish all courses, return an empty array.
+*/
+
+class Solution {
+public:
+    vector<int> findOrder(int num, vector<vector<int>>& p) {
+         vector<int> adj[num];
+
+        for(int i = 0; i < p.size(); i++) {
+             adj[p[i][1]].push_back(p[i][0]);
+        }
+
+        int indegree[num];
+        for(int i = 0; i < num; i++) indegree[i] = 0;
+        for(int i = 0; i < num;i++) {
+            for(auto &j: adj[i]) {
+                indegree[j]++;
+            }
+        }
+        queue<int> q;
+        for(int i = 0; i < num; i++) {
+            if(indegree[i] == 0) {
+                q.push(i);
+            }
+        }
+        vector<int> linearOrder;
+        while(!q.empty()) {
+            int node = q.front();
+            q.pop();
+            linearOrder.push_back(node);
+            for(auto &i: adj[node]) {
+                indegree[i]--;
+                if(indegree[i] == 0) {
+                    q.push(i);
+                }
+            }
+
+        }
+        for(int i = 0; i < num; i++) {
+            if(indegree[i] != 0) {
+                return vector<int>();
+            }
+        }
+        return linearOrder;
+    }
+};
+
+/*
+Given a sorted dictionary of an alien language having N words and k starting alphabets of standard dictionary. 
+Find the order of characters in the alien language.
+
+*/
+
+class Solution{
+    private:
+    void dfs(int node , vector<vector<int>>& graph , int vis[] , stack<int>& st) {
+        vis[node] = 1;
+        
+        for(auto &i: graph[node]) {
+            if(!vis[i]) {
+                dfs(i , graph , vis , st);
+            }
+        }
+        st.push(node);
+    }
+    public:
+    string findOrder(string dict[], int N, int k) {
+        vector<vector<int>> graph(k);
+        
+        for(int i = 0; i < N - 1; i++) {
+            string first = dict[i];
+            string second = dict[i + 1];
+            
+            int sz = min((int)first.size() , (int)second.size());
+            
+            for(int j = 0; j < sz; j++) {
+                if(first[j] != second[j]) {
+                    graph[first[j] - 'a'].push_back(second[j] - 'a');
+                    break;
+                }
+            }
+        }
+        vector<int> indegree(k , 0);
+        string ans;  
+        for(auto &i: graph) {
+            for(auto &j: i) {
+                indegree[j]++;
+            } 
+        }
+        queue<int> q;
+        for(int i = 0; i < k; i++) {
+            if(indegree[i] == 0)
+              q.push(i);
+        }
+        
+        while(!q.empty()) {
+            auto node = q.front();
+            q.pop();
+            ans.push_back(node + 'a');
+            
+            for(auto &i: graph[node]) {
+                indegree[i]--;
+                if(indegree[i] == 0)
+                 q.push(i);
+            }
+        }
+        return ans;
+    }
+};
