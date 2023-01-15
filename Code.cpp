@@ -1051,3 +1051,91 @@ class Solution {
         return dist;
     }
 };
+
+/*Dijkstra's Algorithm - Using Priority Queue
+
+basic logic is to use a priority queue and ..
+
+first insert a the src node and dist 0
+
+then starting iterating to adjacent node of the top of the priority queue and check if the distance of the adjacent node from the src node is 
+less the distace that is mentioneed the disance array ,, if less then insert the adjacent node and the newdistamnce back in the queue
+
+repqeat this process till the priority queue is empty
+
+Time complexity --> O(E * log(V))
+
+*/
+class Solution
+{
+	public:
+	//Function to find the shortest distance of all the vertices
+    //from the source vertex S.
+    vector <int> dijkstra(int V, vector<vector<int>> adj[], int src){
+        vector<int> dist(V , 1e9);
+        
+        priority_queue<pair<int,int> , vector<pair<int,int>> , greater<pair<int,int>>> pq;
+        pq.push({0 , src});
+        
+        dist[src] = 0;
+        
+        while(!pq.empty()) {
+            pair<int,int> pr = pq.top();
+            pq.pop();
+            
+            int node = pr.second;
+            int distance = pr.first;
+            
+            for(auto &it: adj[node]) {
+                int newNode = it.front();
+                int currDistance = it.back();
+                
+                if(dist[newNode] > distance + currDistance) {
+                    pq.push({distance + currDistance , newNode});
+                    dist[newNode] = distance + currDistance;
+                }
+            }
+        }
+        return dist;
+    }
+};
+
+/*Using set data strucure instead of a priority queue*/
+
+class Solution
+{
+	public:
+	//Function to find the shortest distance of all the vertices
+    //from the source vertex S.
+    vector <int> dijkstra(int V, vector<vector<int>> adj[], int src){
+        vector<int> dist(V , 1e9);
+        
+        set<pair<int,int>> pq;
+        pq.insert({0 , src});
+        
+        dist[src] = 0;
+        
+        while(!pq.empty()) {
+            pair<int,int> pr = *pq.begin();
+            pq.erase(pq.begin());
+            
+            int node = pr.second;
+            int distance = pr.first;
+            
+            for(auto &it: adj[node]) {
+                int newNode = it.front();
+                int currDistance = it.back();
+                
+                if(dist[newNode] > distance + currDistance) {
+                    
+                    if(dist[newNode] != 1e9) {
+                        pq.erase({dist[newNode] , newNode});
+                    }
+                    pq.insert({distance + currDistance , newNode});
+                    dist[newNode] = distance + currDistance;
+                }
+            }
+        }
+        return dist;
+    }
+};
