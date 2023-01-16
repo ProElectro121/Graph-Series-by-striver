@@ -1139,3 +1139,67 @@ class Solution
         return dist;
     }
 };
+
+
+/*Shortest Path in Weighted undirected graph
+You are given a weighted undirected graph having n+1 vertices numbered from 0 to n and m edges describing there
+are edges between a to b with some weight, find the shortest path between the vertex 1 and the vertex n and if path
+does not exist then return a list consisting of only -1
+*/
+
+class Solution {
+  public:
+    vector<int> shortestPath(int n, int m, vector<vector<int>>& edges) {
+        vector<pair<int,int>> graph[n + 1];
+        int src = 1; 
+        // Creation of graph
+        for(int i = 0; i < edges.size(); i++) {
+            graph[edges[i][0]].push_back({edges[i][1] , edges[i][2]});
+            graph[edges[i][1]].push_back({edges[i][0] , edges[i][2]});
+        }
+        vector<int> dist(n + 1 , 1e9);
+        vector<int> parent(n + 1, -1);
+        priority_queue<pair<int,int> , vector<pair<int,int>> , greater<pair<int,int>>> pq;
+        
+        pq.push({0 , src});
+        parent[1] = 1;
+        dist[1] = 0;
+        while(!pq.empty()) {
+            pair<int,int> pr = pq.top();
+            pq.pop();
+            
+            int distance = pr.first;
+            int node = pr.second;
+            
+            for(auto &it: graph[node]) {
+                int currDist = it.second;
+                int currNode = it.first;
+                
+                if(distance + currDist < dist[currNode]) {
+                    dist[currNode] = distance + currDist;
+                    pq.push({dist[currNode] , currNode});
+                    
+                    parent[currNode] = node;
+                }
+            }
+        }
+        
+        if(dist[n] == 1e9) {
+            return vector<int>(1 , -1);
+        }
+        vector<int> shortestPath;
+        
+        int node = n;
+        
+        while(node != parent[node]) {
+            shortestPath.push_back(node);
+            
+            node = parent[node];
+        }
+        shortestPath.push_back(1);
+
+        reverse(shortestPath.begin() , shortestPath.end());
+        
+        return shortestPath;
+    }
+};
