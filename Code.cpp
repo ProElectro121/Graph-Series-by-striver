@@ -1203,3 +1203,452 @@ class Solution {
         return shortestPath;
     }
 };
+
+
+/*
+Minimum spanning Tree
+initial condition required ---> a priority queue containgin the any node and edgeWeight as 0 and parent as -1;
+popping the top element in the priority queue and if the current node is visited we continue in the while loop
+else
+we go through the adjacent edgdes and check if the current Node is visited or not , if visited continue else we push the currnode and curredge in the priority queue
+
+Time complexity --> Elog(E)
+
+space complexity --> O(E + V)
+*/
+class Solution
+{
+	public:
+	//Function to find sum of weights of edges of the Minimum Spanning Tree.
+    int spanningTree(int V, vector<vector<int>> adj[]){
+        vector<int> vis(V , 0);
+        
+        priority_queue<pair<int , pair<int,int>> , vector<pair<int , pair<int,int>>> , greater<pair<int , pair<int,int>>>> pq;
+        int MinimumSum = 0;
+        
+        pq.push({0 , {0 , -1}});
+        vector<pair<int,int>> edgesOfMst;
+        
+        while(!pq.empty()) {
+            pair<int,pair<int,int>> data = pq.top();
+            pq.pop();
+            
+            int node = data.second.first;
+            int edgeWeight = data.first;
+            int parent = -1;
+            if(vis[node]) {
+                continue;
+            }
+            MinimumSum += edgeWeight;
+            
+            vis[node] = 1;
+            if(parent != -1) {
+                edgesOfMst.push_back({node , parent});
+            }
+            
+            for(auto &it: adj[node]) {
+                int currNode = it.front();
+                int currEdgeWeight = it.back();
+                
+                if(!vis[currNode]) {
+                    pq.push({currEdgeWeight , {currNode , node}});
+                }
+            }
+        }
+        return MinimumSum;
+    }
+};
+
+/*
+Disjoint set data strcture 
+Time complexity fo chcking --> O(4*a) where a -> 1
+*/ 
+class Disjointset {
+    vector<int> rank , parent , size;
+public:
+    Disjointset(int n) {
+        rank.resize(n + 1 , 0);
+        parent.resize(n + 1);
+        size.resize(n + 1 , 1);
+
+        for (int i = 0; i < n + 1; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int ultimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+
+        return parent[node] = ultimateParent(parent[node]);
+    }
+
+    void UnionByRank(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int rank_u = rank[ultimateParent_u];
+        int rank_v = rank[ultimateParent_v];
+
+        if (rank_u == rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            rank[ultimateParent_u]++;
+        }
+        else if (rank_u > rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+        }
+    }
+
+    void UnionBySize(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int size_u = size[ultimateParent_u];
+        int size_v = size[ultimateParent_v];
+
+        if (size_u == size_v) {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+        else if (size_u > size_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            size[ultimateParent_u] += size[ultimateParent_v];
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+    }
+};
+
+/*
+Minimum spanning tree algoritham using krskal algoritham
+*/
+
+class Disjointset {
+    vector<int> rank , parent , size;
+public:
+    Disjointset(int n) {
+        rank.resize(n + 1 , 0);
+        parent.resize(n + 1);
+        size.resize(n + 1 , 1);
+
+        for (int i = 0; i < n + 1; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int ultimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+
+        return parent[node] = ultimateParent(parent[node]);
+    }
+
+    void UnionByRank(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int rank_u = rank[ultimateParent_u];
+        int rank_v = rank[ultimateParent_v];
+
+        if (rank_u == rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            rank[ultimateParent_u]++;
+        }
+        else if (rank_u > rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+        }
+    }
+
+    void UnionBySize(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int size_u = size[ultimateParent_u];
+        int size_v = size[ultimateParent_v];
+
+        if (size_u == size_v) {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+        else if (size_u > size_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            size[ultimateParent_u] += size[ultimateParent_v];
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+    }
+};
+
+
+
+class Solution
+{
+	public:
+	//Function to find sum of weights of edges of the Minimum Spanning Tree.
+    int spanningTree(int V, vector<vector<int>> adj[]){
+        vector<pair<int , pair<int,int>>> edges;
+        
+        for(int i = 0; i < V; i++) {
+            for(auto &it: adj[i]) {
+                int u = i;
+                int v = it[0];
+                int edgeWeight = it[1];
+            
+                edges.push_back({edgeWeight , {u , v}});
+            }
+        }
+        
+        sort(edges.begin() , edges.end());
+        int MinimumSum = 0;
+        
+        Disjointset ds(V);
+        for(int i = 0; i < edges.size(); i++) {
+            int edgeWeight = edges[i].first;
+            int u = edges[i].second.first;
+            int v = edges[i].second.second;
+            
+            if(ds.ultimateParent(u) != ds.ultimateParent(v)) {
+                MinimumSum += edgeWeight;
+                ds.UnionBySize(u , v);
+            }
+        }
+        return MinimumSum;
+    }
+};
+
+/*
+Number of province using disjoint set data structure
+*/
+
+
+class Disjointset {
+public:    
+    vector<int> rank , parent , size;
+    Disjointset(int n) {
+        rank.resize(n + 1 , 0);
+        parent.resize(n + 1);
+        size.resize(n + 1 , 1);
+
+        for (int i = 0; i < n + 1; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int ultimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+
+        return parent[node] = ultimateParent(parent[node]);
+    }
+
+    void UnionByRank(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int rank_u = rank[ultimateParent_u];
+        int rank_v = rank[ultimateParent_v];
+
+        if (rank_u == rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            rank[ultimateParent_u]++;
+        }
+        else if (rank_u > rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+        }
+    }
+
+    void UnionBySize(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int size_u = size[ultimateParent_u];
+        int size_v = size[ultimateParent_v];
+
+        if (size_u == size_v) {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+        else if (size_u > size_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            size[ultimateParent_u] += size[ultimateParent_v];
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+    }
+};
+
+
+class Solution {
+  public:
+    int numProvinces(vector<vector<int>> adj, int V) {
+        int n = adj.size();
+        
+        Disjointset ds(V);
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(adj[i][j] == 1) {
+                    ds.UnionBySize(i , j);
+                }
+            }
+        }
+        int countProvince = 0;
+        for(int i = 0; i < V ; i++) {
+            countProvince += (i == ds.parent[i]);
+        }
+        return countProvince;
+    }
+};
+
+/*Connecting the graph .. ie tell minimum no edges to take out from the graph and add to other component to make it a;; connected
+
+TC - O(M(4alpha)) ---> M = edge.size()
+SC - O(2V) or O(2N)
+
+*/
+
+
+class Disjointset {
+    
+public:
+    vector<int> rank , parent , size;
+    Disjointset(int n) {
+        rank.resize(n + 1 , 0);
+        parent.resize(n + 1);
+        size.resize(n + 1 , 1);
+
+        for (int i = 0; i < n + 1; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int ultimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+
+        return parent[node] = ultimateParent(parent[node]);
+    }
+
+    void UnionByRank(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int rank_u = rank[ultimateParent_u];
+        int rank_v = rank[ultimateParent_v];
+
+        if (rank_u == rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            rank[ultimateParent_u]++;
+        }
+        else if (rank_u > rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+        }
+    }
+
+    void UnionBySize(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int size_u = size[ultimateParent_u];
+        int size_v = size[ultimateParent_v];
+
+        if (size_u == size_v) {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+        else if (size_u > size_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            size[ultimateParent_u] += size[ultimateParent_v];
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+    }
+};
+
+
+class Solution {
+  public:
+    int Solve(int n, vector<vector<int>>& edge) {
+        int countConnectedComponent = 0 , extraEdges = 0;
+        
+        Disjointset ds(n);
+        for(int i = 0; i < edge.size(); i++) {
+            int u = edge[i].front();
+            int v = edge[i].back();
+           
+            if(ds.ultimateParent(u) == ds.ultimateParent(v)) {
+                extraEdges++;
+            }
+            
+            ds.UnionByRank(u , v);
+            ds.UnionByRank(v , u);
+            
+         
+        }
+        
+        for(int i = 0; i < n; i++) {
+            countConnectedComponent += (i == ds.parent[i]);
+        }
+        
+        if(extraEdges >= countConnectedComponent - 1) {
+            return countConnectedComponent - 1;
+        }
+        return -1;
+    }
+};
+
