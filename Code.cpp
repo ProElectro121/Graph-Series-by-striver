@@ -1652,3 +1652,123 @@ class Solution {
     }
 };
 
+/*Accounts merge*/
+
+class Disjointset {
+    vector<int> rank , parent , size;
+public:
+    Disjointset(int n) {
+        rank.resize(n + 1 , 0);
+        parent.resize(n + 1);
+        size.resize(n + 1 , 1);
+
+        for (int i = 0; i < n + 1; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int ultimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+
+        return parent[node] = ultimateParent(parent[node]);
+    }
+
+    void UnionByRank(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int rank_u = rank[ultimateParent_u];
+        int rank_v = rank[ultimateParent_v];
+
+        if (rank_u == rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            rank[ultimateParent_u]++;
+        }
+        else if (rank_u > rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+        }
+    }
+
+    void UnionBySize(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int size_u = size[ultimateParent_u];
+        int size_v = size[ultimateParent_v];
+
+        if (size_u == size_v) {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+        else if (size_u > size_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            size[ultimateParent_u] += size[ultimateParent_v];
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+    }
+};
+
+
+class Solution {
+public:
+    vector<vector<string>> accountsMerge(vector<vector<string>>& accounts){
+        Disjointset ds(accounts.size());
+
+        unordered_map<string,int> mp;
+
+        for(int i = 0; i < accounts.size(); i++) {
+            for(int j = 1; j < accounts[i].size(); j++) {
+                auto itr = mp.find(accounts[i][j]);
+
+                if(itr ==mp.end()) {
+                    mp[accounts[i][j]] = i;
+                }
+                else {
+                    int u = i;
+                    int v = mp[accounts[i][j]];
+                    ds.UnionBySize(u , v);
+                }
+            }
+        }
+        vector<vector<string>> mergeAccounts;
+        map<int , vector<string>> newMap;
+
+        for(auto &ele: mp) {
+            int upperBoss = ds.ultimateParent(ele.second);
+            newMap[upperBoss].push_back(ele.first);
+        }
+
+        for(auto &ele: newMap) {
+            int key = ele.first;
+            vector<string> emails = ele.second;
+            sort(emails.begin() , emails.end());
+
+            vector<string> temp;
+            temp.push_back(accounts[key].front());
+
+            for(auto &it: emails) {
+                temp.push_back(it);
+            }
+            mergeAccounts.push_back(temp);
+        }   
+
+        return mergeAccounts;
+    }
+};
+
