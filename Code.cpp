@@ -1772,3 +1772,129 @@ public:
     }
 };
 
+
+/*
+Number Of Islans --> Online queries
+*/
+
+
+class Disjointset {
+    vector<int> rank , parent , size;
+public:
+    Disjointset(int n) {
+        rank.resize(n + 1 , 0);
+        parent.resize(n + 1);
+        size.resize(n + 1 , 1);
+
+        for (int i = 0; i < n + 1; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int ultimateParent(int node) {
+        if (node == parent[node]) {
+            return node;
+        }
+
+        return parent[node] = ultimateParent(parent[node]);
+    }
+
+    void UnionByRank(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int rank_u = rank[ultimateParent_u];
+        int rank_v = rank[ultimateParent_v];
+
+        if (rank_u == rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            rank[ultimateParent_u]++;
+        }
+        else if (rank_u > rank_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+        }
+    }
+
+    void UnionBySize(int u , int v) {
+        int ultimateParent_u = ultimateParent(u);
+        int ultimateParent_v = ultimateParent(v);
+
+        if (ultimateParent_u == ultimateParent_v) {
+            return;
+        }
+
+        int size_u = size[ultimateParent_u];
+        int size_v = size[ultimateParent_v];
+
+        if (size_u == size_v) {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+        else if (size_u > size_v) {
+            parent[ultimateParent_v] = ultimateParent_u;
+            size[ultimateParent_u] += size[ultimateParent_v];
+        }
+        else {
+            parent[ultimateParent_u] = ultimateParent_v;
+            size[ultimateParent_v] += size[ultimateParent_u];
+        }
+    }
+};
+
+
+
+class Solution {
+  public:
+    vector<int> numOfIslands(int m, int n, vector<vector<int>> &query) {
+      
+        vector<vector<int>> matrix(m , vector<int> (n , 0));
+        vector<vector<int>> vis(m , vector<int> (n , 0));
+        
+        Disjointset ds(m*n);
+        
+        int du[] = {0 , 1, 0, -1};
+        int dv[] = {1 , 0, -1, 0};
+        
+        vector<int> ans;
+        int cnt = 0;
+        
+        for(auto &ele: query) {
+            int u = ele.front();
+            int v = ele.back();
+            
+            if(vis[u][v] == 1) {
+                ans.push_back(cnt);
+                continue;
+            }
+            // matrix[u][v] = 1 
+            vis[u][v] = 1;
+            cnt++;
+            
+            for(int i = 0; i  < 4; i++) {
+                int newu = u + du[i];
+                int newv = v + dv[i];
+                
+                if(newu >= 0 and newv >= 0 and newu < m and newv < n) {
+                    if(vis[newu][newv] == 1) {
+                        int nodex = u * n + v;
+                        int nodey = newu * n + newv;
+                        
+                        if(ds.ultimateParent(nodex) != ds.ultimateParent(nodey)) {
+                            cnt--;
+                            ds.UnionBySize(nodex , nodey);
+                        }
+                    }
+                }
+            }
+            ans.push_back(cnt);
+        }
+        return ans;
+    }
+};
