@@ -1898,3 +1898,78 @@ class Solution {
         return ans;
     }
 };
+
+
+/*
+  Strongly Connected Components - Kosaraju's Algorithm
+  3 step algortitham
+  
+  first sort all the nodes acoording to their finishing time --> sumilate to finding topo sort
+  
+  reverse all the edges
+  
+  run dfs again to find the all the strogly connected componenet
+  
+  intution --> we can go from one scc to other
+  if we reverse the edges then it is not possible
+  
+  and we hav to start out dfs in accoridinf the finsihing time of ndoes.
+*/
+
+
+class Solution{
+    private:
+    void dfs(int node , int vis[] , vector<int> adj[] , stack<int>& s) {
+        vis[node] = 1;
+        
+        for(auto &it: adj[node]) {
+            if(!vis[it]) {
+                dfs(it , vis , adj , s);
+            }
+        }
+        s.push(node);
+    }
+     void modifieddfs(int node , int vis[] , vector<int> adj[]) {
+        vis[node] = 1;
+        
+        for(auto &it: adj[node]) {
+            if(!vis[it]) {
+                modifieddfs(it , vis , adj);
+            }
+        }
+    } 
+	public:
+	//Function to find number of strongly connected components in the graph.
+    int kosaraju(int V, vector<int> adj[]){
+        stack<int> finishingTime;
+        int vis[V] = {0};
+        // dfs(0 , vis , adj , finishingTime);
+        for(int i = 0; i < V; i++) {
+            if(!vis[i]) {
+                dfs(i , vis , adj , finishingTime);
+            }
+        }
+        vector<int> graph[V];
+        
+        for(int i = 0; i < V; i++) {
+            for(auto &it: adj[i]) {
+                graph[it].push_back(i);
+            }
+        }
+        
+        for(int i = 0; i < V; i++) {
+            vis[i] = 0;
+        }
+        int scc = 0;
+        while(!finishingTime.empty()) {
+            int node = finishingTime.top();
+            finishingTime.pop();
+            
+            if(!vis[node]) {
+                scc++;
+                modifieddfs(node , vis , graph);
+            }
+        }
+        return scc;
+    }
+};
