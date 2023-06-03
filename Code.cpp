@@ -1204,6 +1204,104 @@ class Solution {
     }
 };
 
+/*
+  Belman ford algorithm
+*/
+
+ vector<int> bellman_ford(int V, vector<vector<int>>& edges, int S) {
+        int n = edges.size();
+        vector<int> dist(V , 1e8);
+        dist[S] = 0;
+        
+        int x = V - 1;
+        while(x--) {
+            for(int i = 0; i < n; i++) {
+                int u = edges[i][0];
+                int v = edges[i][1];
+                int wt = edges[i][2];
+                
+                if(dist[u] == 1e9) continue;
+                int newDist = wt + dist[u];
+                if(newDist < dist[v]) {
+                    dist[v] = newDist;
+                }
+            }
+        }
+        bool negCycle = false;
+        for(int i = 0; i < n; i++) {
+            int u = edges[i][0];
+            int v = edges[i][1];
+            int wt = edges[i][2];
+            
+            int newDist = wt + dist[u];
+            if(newDist < dist[v]) {
+                negCycle = true;
+                break;
+            }
+        }
+        if(negCycle) {
+            return vector<int>(1 ,-1);
+        }
+        return dist;
+    }
+
+
+/*
+Floyd warshal algprithm
+
+*/
+
+class Solution {
+  public:
+	void shortest_distance(vector<vector<int>>&matrix){
+	    int n = matrix.size();
+	    vector<pair<int,int>> graph[n];
+	    
+	    for(int i = 0; i < n; i++) {
+	        for(int j = 0; j < n; j++) {
+	            if(matrix[i][j] != -1)
+	            graph[i].push_back({j , matrix[i][j]});
+	        }
+	    }
+	    
+	    vector<vector<int>> dist(n , vector<int>(n , 1e9));
+	    for(int i = 0; i < n; i++) {
+	        dist[i][i] = 0;
+	    }
+	    for(int i = 0; i < n; i++) {
+	        for(auto &j: graph[i]) {
+	            int u = i;
+	            int v = j.first;
+	            int wt = j.second;
+	            
+	            dist[u][v] = wt;
+	        }
+	    }
+	    
+	    for(int var = 0; var < n; var++) {
+	        for(int i = 0; i < n; i++) {
+	            for(int j = 0; j < n; j++) {
+	                if(i == var or j == var or dist[i][var] == 1e9 or dist[var][j] == 1e9) continue;
+	                
+	                int newdist = dist[i][var] + dist[var][j];
+	                dist[i][j] = min(dist[i][j] , newdist);
+ 	            }
+	        }
+	    }
+	    for(int i = 0; i < n; i++) {
+	        for(int j = 0; j < n; j++) {
+	            if(dist[i][j] == 1e9) {
+	                matrix[i][j] = -1;
+	            }
+	            else {
+	                matrix[i][j] = dist[i][j];
+	            }
+	        }
+	    }
+	}
+};
+
+//
 
 /*
 Minimum spanning Tree
@@ -1220,44 +1318,41 @@ class Solution
 {
 	public:
 	//Function to find sum of weights of edges of the Minimum Spanning Tree.
-    int spanningTree(int V, vector<vector<int>> adj[]){
-        vector<int> vis(V , 0);
+    int spanningTree(int V, vector<vector<int>> adj[]) {
+        int ans = 0;
         
-        priority_queue<pair<int , pair<int,int>> , vector<pair<int , pair<int,int>>> , greater<pair<int , pair<int,int>>>> pq;
-        int MinimumSum = 0;
+        using pii = pair<int, pair<int,int>>;
+        priority_queue<pii , vector<pii> , greater<pii>> pq;
         
-        pq.push({0 , {0 , -1}});
-        vector<pair<int,int>> edgesOfMst;
+        int vis[V] = {0};
+        pq.push({0 , {0 , -1}}); // {edgeWt , {Node , parent}}
         
         while(!pq.empty()) {
-            pair<int,pair<int,int>> data = pq.top();
+            auto Node = pq.top();
             pq.pop();
             
-            int node = data.second.first;
-            int edgeWeight = data.first;
-            int parent = -1;
-            if(vis[node]) {
-                continue;
-            }
-            MinimumSum += edgeWeight;
-            
+            int node = Node.second.first;
+            int edgeWt = Node.first;
+            int parent = Node.second.second;
+            if(vis[node]) continue;
             vis[node] = 1;
-            if(parent != -1) {
-                edgesOfMst.push_back({node , parent});
-            }
+            ans += edgeWt;
             
-            for(auto &it: adj[node]) {
-                int currNode = it.front();
-                int currEdgeWeight = it.back();
+            for(auto &child: adj[node]) {
+                int currNode = child[0];
+                int dis = child[1];
                 
                 if(!vis[currNode]) {
-                    pq.push({currEdgeWeight , {currNode , node}});
+                    pq.push({dis , {currNode , node}});
                 }
             }
         }
-        return MinimumSum;
+        return ans;
     }
 };
+
+
+
 
 /*
 Disjoint set data strcture 
